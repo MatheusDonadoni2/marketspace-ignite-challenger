@@ -1,19 +1,28 @@
-import { UserDTO } from "./UserDTO";
+import { PaymentMethodsDTO } from "./PaymentMethodsDTO";
 
 type PaymentMethodsDTO = {
-  key: string;
+  key: PaymentMethodsDTO;
   name: string;
+};
+
+type ProductsImageDTO = {
+  id: string;
+  path: string;
 };
 
 export type ProductDTO = {
   id: string;
   name: string;
+  price: number;
   description: string;
   is_new: boolean;
-  price: number;
-  accept_trade: boolean;
   is_active: boolean;
-  product_images: string[];
+  accept_trade: boolean;
+  product_images: ProductsImageDTO[];
   payment_methods: PaymentMethodsDTO[];
-  user: UserDTO;
+  user: {
+    avatar: string;
+    name: string;
+    tel: string;
+  };
 };

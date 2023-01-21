@@ -14,62 +14,75 @@ import {
   Switch,
   useToast,
 } from "native-base";
-import {
-  Tag,
-  ArrowRight,
-  MagnifyingGlass,
-  Divide,
-  Sliders,
-  XCircle,
-} from "phosphor-react-native";
+import { MagnifyingGlass, Sliders } from "phosphor-react-native";
 
 import { api } from "@services/api";
 import { AppError } from "@utils/AppErro";
+import { ProductDTO } from "@dtos/ProductDTO";
 import { AppNavigatorProps } from "@routes/app.routes";
 
 import { Input } from "@components/Input";
 import { Button } from "@components/Button";
 import { HeaderHome } from "@components/HeaderHome";
 import { Tag as TagComponent } from "@components/Tag";
-import { CardAnnouncement } from "@components/CardAnnouncement";
+import { CardProduct } from "@components/CardProduct";
+import { MyProductsBanner } from "@components/MyProductsBanner";
+import { Loading } from "@components/Loading";
+
+type QueryParamsProps = {
+  is_new?: boolean | undefined;
+  acceptTrade?: boolean | undefined;
+  paymentMethod?: Array<string> | undefined;
+  query?: string | undefined;
+};
 
 export function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [filterIsNew, setFilterIsNew] = useState(true);
   const [filterIsUsed, setFilterIsUsed] = useState(true);
+  const [filterAcceptTrada, setFilterAcceptTrada] = useState(false);
+  const [filter, setFilter] = useState<QueryParamsProps>(
+    {} as QueryParamsProps
+  );
 
   const toast = useToast();
 
-  const data = [
-    { name: "Product 1", isNew: false },
-    { name: "Product 2", isNew: true },
-    { name: "Product 3", isNew: true },
-    { name: "Product 4", isNew: false },
-    { name: "Product 5", isNew: true },
-    { name: "Product 6", isNew: true },
-    { name: "Product 7", isNew: false },
-    { name: "Product 8", isNew: true },
-    { name: "Product 9", isNew: true },
-  ];
+  const [productsData, setProductsData] = useState<ProductDTO[]>([]);
 
-  const [productsData, setProductsData] = useState();
-
-  const { colors } = useTheme();
   const navigate = useNavigation<AppNavigatorProps>();
 
-  async function fetchProduct() {
+  async function fetchProducts() {
     try {
       setIsLoading(true);
-      const response = await api.get("/users/products");
-      console.log(response.data);
+      const { data } = await api.get("/products");
+      setProductsData(data);
     } catch (error) {
       const isAppError = error instanceof AppError;
-
       const title = isAppError
         ? error.message
         : "Não foi possível carregar os produtos.";
-
+      toast.show({
+        title,
+        placement: "top",
+        bgColor: "red.500",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }
+  async function fetchFilterProducts() {
+    try {
+      setIsLoading(true);
+      setOpenModal(false);
+      console.log({ params: filter });
+      const { data } = await api.get("/products", { params: filter });
+      setProductsData(data);
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+      const title = isAppError
+        ? error.message
+        : "Não foi possível carregar os produtos.";
       toast.show({
         title,
         placement: "top",
@@ -80,9 +93,86 @@ export function Home() {
     }
   }
 
+  function handleSetFilterSearchText(text: string) {
+    if (text.length > 0) {
+      let newFilter = {
+        ...filter,
+        query: text,
+      };
+
+      setFilter(newFilter);
+    }
+  }
+
+  function handleFilterIsNew(value: boolean) {
+    setFilterIsNew(value);
+
+    if (value && filterIsUsed) {
+      let newFilter = filter;
+      delete newFilter.is_new;
+
+      setFilter(newFilter);
+    } else if (value) {
+      let newFilter = {
+        ...filter,
+        is_new: true,
+      };
+      setFilter(newFilter);
+    } else if (filterIsUsed) {
+      let newFilter = {
+        ...filter,
+        is_new: false,
+      };
+      setFilter(newFilter);
+    } else {
+      let newFilter = filter;
+      delete newFilter.is_new;
+
+      setFilter(newFilter);
+    }
+  }
+
+  function handleFilterIsUsed(value: boolean) {
+    setFilterIsUsed(value);
+
+    if (filterIsNew && value) {
+      let newFilter = filter;
+      delete newFilter.is_new;
+
+      setFilter(newFilter);
+    } else if (value) {
+      let newFilter = {
+        ...filter,
+        is_new: false,
+      };
+      setFilter(newFilter);
+    } else if (filterIsNew) {
+      let newFilter = {
+        ...filter,
+        is_new: true,
+      };
+    } else {
+      let newFilter = filter;
+      delete newFilter.is_new;
+
+      setFilter(newFilter);
+    }
+  }
+
+  function handleFilterAcceptTrade(value: boolean) {
+    let newFilter = {
+      ...filter,
+      accept_trade: value,
+    };
+
+    setFilterAcceptTrada(value);
+
+    setFilter(newFilter);
+  }
+
   useFocusEffect(
     useCallback(() => {
-      fetchProduct();
+      fetchProducts();
     }, [])
   );
 
@@ -90,49 +180,12 @@ export function Home() {
     <>
       <VStack flex={1} px={6} bgColor={"gray.600"} safeArea>
         <HeaderHome />
-        <Button
-          title="fetchProduct"
-          onPress={() => fetchProduct()}
-          isLoading={isLoading}
-        />
         <Text color="gray.300" fontSize="sm" mt={8}>
           Seus produtos anunciados para venda{" "}
         </Text>
-        <HStack
-          bgColor="#dfe1ea"
-          px={4}
-          py={3}
-          mt={3}
-          rounded={6}
-          alignItems="center"
-          justifyContent={"space-between"}
-        >
-          <HStack w="126">
-            <Tag size={22} weight="bold" color={colors.blue[500]} />
-            <VStack flex={1} ml={4}>
-              <Heading
-                color={"gray.200"}
-                fontSize={"lg"}
-                fontFamily={"heading"}
-              >
-                4
-              </Heading>
-              <Text color={"gray.200"} fontSize={"xs"} fontFamily={"body"}>
-                anúncios ativos
-              </Text>
-            </VStack>
-          </HStack>
-          <HStack
-            w={"111"}
-            alignItems={"center"}
-            justifyContent={"space-between"}
-          >
-            <Text color={"blue.500"} fontSize={"xs"} fontFamily={"heading"}>
-              Meus anúncios
-            </Text>
-            <ArrowRight size={24} color={colors.blue[500]} />
-          </HStack>
-        </HStack>
+
+        <MyProductsBanner />
+
         <Text color="gray.300" fontSize="sm" mt={8}>
           Compre produtos variados
         </Text>
@@ -140,9 +193,10 @@ export function Home() {
         <Input
           mt={3}
           placeholder="Buscar anúncio"
+          onChangeText={handleSetFilterSearchText}
           InputRightElement={
             <HStack pr={4}>
-              <TouchableOpacity onPress={() => console.log("Search")}>
+              <TouchableOpacity onPress={fetchFilterProducts}>
                 <MagnifyingGlass size={20} weight={"bold"} />
               </TouchableOpacity>
               <Divider orientation="vertical" h={5} bg="gray.400" mx={3} />
@@ -152,25 +206,33 @@ export function Home() {
             </HStack>
           }
         />
-
-        <FlatList
-          data={data}
-          keyExtractor={(item) => item.name}
-          renderItem={(item) => (
-            <CardAnnouncement
-              isNew={item.item.isNew}
-              onPress={() => navigate.navigate("announcement")}
-            />
-          )}
-          numColumns={2}
-          columnWrapperStyle={{
-            justifyContent: "space-between",
-            marginBottom: 24,
-          }}
-          mt={8}
-          showsVerticalScrollIndicator={false}
-          h="full"
-        />
+        {isLoading ? (
+          <Loading />
+        ) : (
+          <FlatList
+            data={productsData}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <CardProduct
+                data={item}
+                onPress={() =>
+                  navigate.navigate("product", {
+                    productId: item.id,
+                    isOwner: false,
+                  })
+                }
+              />
+            )}
+            numColumns={2}
+            columnWrapperStyle={{
+              justifyContent: "space-between",
+              marginBottom: 24,
+            }}
+            mt={8}
+            showsVerticalScrollIndicator={false}
+            h="full"
+          />
+        )}
       </VStack>
 
       <Modal
@@ -196,12 +258,12 @@ export function Home() {
                 <TagComponent
                   title="NOVO"
                   isChecked={filterIsNew}
-                  onPress={() => setFilterIsNew(!filterIsNew)}
+                  onPress={() => handleFilterIsNew(!filterIsNew)}
                 />
                 <TagComponent
                   title="USADO"
                   isChecked={filterIsUsed}
-                  onPress={() => setFilterIsUsed(!filterIsUsed)}
+                  onPress={() => handleFilterIsUsed(!filterIsUsed)}
                 />
               </HStack>
             </VStack>
@@ -216,7 +278,8 @@ export function Home() {
                   offTrackColor={"gray.500"}
                   onThumbColor={"gray.700"}
                   onTrackColor={"blue.100"}
-                  // onToggle={() => }
+                  value={filterAcceptTrada}
+                  onToggle={(value) => handleFilterAcceptTrade(value)}
                 />
               </HStack>
             </VStack>
@@ -281,7 +344,12 @@ export function Home() {
               flex={1}
               mr={3}
             />
-            <Button title="Aplicar filtros" colorScheme={"black"} flex={1} />
+            <Button
+              title="Aplicar filtros"
+              colorScheme={"black"}
+              flex={1}
+              onPress={fetchFilterProducts}
+            />
           </Modal.Footer>
         </Modal.Content>
       </Modal>

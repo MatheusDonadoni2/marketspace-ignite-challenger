@@ -1,33 +1,41 @@
-import { AppError } from "@utils/AppErro";
-import axios, { AxiosInstance } from "axios";
-
 import {
   storageAuthTokenGet,
   storageAuthTokenSave,
 } from "@storage/storageToken";
+import { AppError } from "@utils/AppErro";
+import axios, { AxiosInstance } from "axios";
 
-type SignOut = () => void;
-
-type ApiInstanceProps = AxiosInstance & {
-  registerInterceptTokenManager: (signOut: SignOut) => () => void;
-};
 type PromiseType = {
   resolve: (value?: unknown) => void;
   reject: (reason?: unknown) => void;
 };
-type ProcessQueueParams = {
+
+type processQueueParams = {
   error: Error | null;
   token: string | null;
 };
 
-const api = axios.create({
+type RegisterInterceptTokenManagerProps = {
+  signOut: () => void;
+  refreshedTokenUpdated: (newToken: string) => void;
+};
+
+type APIInstanceProps = AxiosInstance & {
+  registerInterceptTokenManager: ({
+    signOut,
+    refreshedTokenUpdated,
+  }: RegisterInterceptTokenManagerProps) => () => void;
+};
+
+export const api = axios.create({
   baseURL: "http://192.168.100.5:3344",
-}) as ApiInstanceProps;
+}) as APIInstanceProps;
 
 let isRefreshing = false;
+
 let failedQueue: Array<PromiseType> = [];
 
-const processQueue = ({ error, token = null }: ProcessQueueParams): void => {
+const processQueue = ({ error, token = null }: processQueueParams) => {
   failedQueue.forEach((request) => {
     if (error) {
       request.reject(error);
@@ -39,14 +47,14 @@ const processQueue = ({ error, token = null }: ProcessQueueParams): void => {
   failedQueue = [];
 };
 
-api.registerInterceptTokenManager = (signOut) => {
+api.registerInterceptTokenManager = ({ signOut, refreshedTokenUpdated }) => {
   const interceptTokenManager = api.interceptors.response.use(
     (response) => response,
     async (requestError) => {
       if (requestError?.response?.status === 401) {
         if (
           requestError.response.data?.message === "token.expired" ||
-          requestError.response.data?.message === "token.invalid"
+          requestError.response.data?.message === "JWT token não informado."
         ) {
           const oldToken = await storageAuthTokenGet();
 
@@ -56,6 +64,7 @@ api.registerInterceptTokenManager = (signOut) => {
           }
 
           const originalRequest = requestError.config;
+
           if (isRefreshing) {
             return new Promise((resolve, reject) => {
               failedQueue.push({ resolve, reject });
@@ -76,19 +85,22 @@ api.registerInterceptTokenManager = (signOut) => {
               const { data } = await api.post("/sessions/refresh-token", {
                 token: oldToken,
               });
-              console.log(oldToken);
 
               await storageAuthTokenSave(data.token);
 
               api.defaults.headers.common[
                 "Authorization"
-              ] = `Bearer${data.token}`;
+              ] = `Bearer ${data.token}`;
+
               originalRequest.headers["Authorization"] = `Bearer ${data.token}`;
 
-              processQueue({ error: null, token: data.Token });
+              refreshedTokenUpdated(data.token);
+              processQueue({ error: null, token: data.token });
+
               resolve(originalRequest);
             } catch (error: any) {
               processQueue({ error, token: null });
+
               signOut();
               reject(error);
             } finally {
@@ -112,5 +124,3 @@ api.registerInterceptTokenManager = (signOut) => {
     api.interceptors.response.eject(interceptTokenManager);
   };
 };
-
-export { api };

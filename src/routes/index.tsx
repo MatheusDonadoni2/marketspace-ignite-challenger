@@ -6,9 +6,9 @@ import { AppRoutes } from "./app.routes";
 import { AuthRoutes } from "./auth.routes";
 
 export function Routes() {
-  const { colors } = useTheme();
-  const { user } = useAuth();
   const theme = DefaultTheme;
+  const { user } = useAuth();
+  const { colors } = useTheme();
 
   theme.colors.background = colors.gray[600];
 

@@ -1,7 +1,11 @@
-import { Image, IImageProps, Button, useTheme, Center } from "native-base";
 import { PencilSimpleLine } from "phosphor-react-native";
+import { Image, IImageProps, Button, useTheme, Center } from "native-base";
+
+import { api } from "@services/api";
+import userPhotoDefaultPNG from "@assets/userPhotoDefault.png";
 
 type Props = IImageProps & {
+  urlImage: string;
   size: number;
   edit?: boolean;
   colorScheme?: "Primary" | "Secondary";
@@ -9,11 +13,11 @@ type Props = IImageProps & {
 };
 
 export function Avatar({
+  urlImage,
   size,
   edit = false,
   onPress = undefined,
   colorScheme = "Primary",
-
   ...rest
 }: Props) {
   const { colors } = useTheme();
@@ -31,6 +35,11 @@ export function Avatar({
         borderWidth={2}
         borderColor={colorScheme === "Primary" ? "blue.100" : "gray.700"}
         alt="Imagem do usuário"
+        source={
+          urlImage
+            ? { uri: `${api.defaults.baseURL}/images/${urlImage}` }
+            : userPhotoDefaultPNG
+        }
         {...rest}
       />
       {edit && (

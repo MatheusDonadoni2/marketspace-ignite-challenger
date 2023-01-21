@@ -67,13 +67,7 @@ export function SignIn() {
           </Text>
         </VStack>
 
-        <Center
-          w={279}
-          mt={76}
-          flex={1}
-          justifyContent="center"
-          alignItems="center"
-        >
+        <Center w={279} mt={20} flex={1}>
           <Text color="gray.200" fontSize="sm" fontFamily="body">
             Acesse sua conta
           </Text>
@@ -111,11 +105,9 @@ export function SignIn() {
               />
             )}
           />
-
           <Button
             mt={8}
             title="Entrar"
-            h={12}
             isLoading={isLoading}
             onPress={handleSubmit(handleSignIn)}
           />

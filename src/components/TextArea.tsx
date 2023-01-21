@@ -3,7 +3,6 @@ import {
   ITextAreaProps,
   FormControl,
 } from "native-base";
-import { FormControlContext } from "native-base/lib/typescript/components/composites/FormControl";
 
 type Props = ITextAreaProps & {
   errorMessage?: string | null;
@@ -24,6 +23,7 @@ export function TextArea({ errorMessage, isInvalid, ...rest }: Props) {
         color="gray.100"
         fontSize="md"
         placeholderTextColor="gray.400"
+        isInvalid={invalid}
         _invalid={{
           borderWidth: 1,
           borderColor: "red.500",

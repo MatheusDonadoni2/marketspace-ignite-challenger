@@ -170,6 +170,7 @@ export function SignUp() {
           <VStack flex={1} mt={8} alignItems="center">
             <Avatar
               size={24}
+              urlImage={""}
               source={
                 userAvatar.uri ? { uri: userAvatar.uri } : userPhotoDefaultPNG
               }

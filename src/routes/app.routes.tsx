@@ -1,27 +1,36 @@
-import { Platform } from "react-native";
+import { useTheme } from "native-base";
+import { Platform, Pressable } from "react-native";
 import {
   createBottomTabNavigator,
   BottomTabNavigationProp,
 } from "@react-navigation/bottom-tabs";
-
-import { useTheme } from "native-base";
-
 import { House, Tag, SignOut } from "phosphor-react-native";
 
+import { useAuth } from "@hooks/useAuth";
+
 import { Home } from "@screens/Home";
-import { Teste } from "@screens/Teste";
-import { Announcement } from "@screens/Announcement";
-import { MyAnnouncement } from "@screens/MyAnnouncement";
-import { MyAnnouncements } from "@screens/MyAnnouncements";
-import { NewAnnouncement } from "@screens/NewAnnouncement";
+import { Product } from "@screens/Product";
+import { MyProducts } from "@screens/MyProducts";
+import { NewProduct } from "@screens/NewProduct";
+import { PreviewProduct } from "@screens/PreviewProducts";
 
 type AppRoutes = {
   home: undefined;
-  myAnnouncement: undefined;
-  myAnnouncements: undefined;
-  newAnnouncement: undefined;
+  product: {
+    isOwner: boolean;
+    productId: string;
+  };
+  myProducts: undefined;
+
+  newProduct: {
+    isEdit: boolean;
+    productId?: string;
+  };
+
+  previewProduct: {
+    productId: string;
+  };
   logout: undefined;
-  announcement: undefined;
 };
 
 export type AppNavigatorProps = BottomTabNavigationProp<AppRoutes>;
@@ -29,6 +38,7 @@ export type AppNavigatorProps = BottomTabNavigationProp<AppRoutes>;
 const { Navigator, Screen } = createBottomTabNavigator<AppRoutes>();
 
 export function AppRoutes() {
+  const { signOut } = useAuth();
   const { sizes, colors } = useTheme();
   const iconSize = sizes[6];
   return (
@@ -57,8 +67,8 @@ export function AppRoutes() {
         }}
       />
       <Screen
-        name="myAnnouncements"
-        component={MyAnnouncements}
+        name="myProducts"
+        component={MyProducts}
         options={{
           tabBarIcon: ({ color }) => (
             <Tag color={color} size={iconSize} weight="bold" />
@@ -68,17 +78,19 @@ export function AppRoutes() {
 
       <Screen
         name="logout"
-        component={Teste}
+        component={"" as any}
         options={{
           tabBarIcon: ({ color }) => (
-            <SignOut color={colors.red[50]} size={iconSize} weight="bold" />
+            <Pressable onPress={signOut}>
+              <SignOut color={colors.red[50]} size={iconSize} weight="bold" />
+            </Pressable>
           ),
         }}
       />
 
       <Screen
-        name="newAnnouncement"
-        component={NewAnnouncement}
+        name="newProduct"
+        component={NewProduct}
         options={{
           tabBarButton: () => null,
           tabBarStyle: { display: "none" },
@@ -86,8 +98,8 @@ export function AppRoutes() {
       />
 
       <Screen
-        name="announcement"
-        component={Announcement}
+        name="product"
+        component={Product}
         options={{
           tabBarButton: () => null,
           tabBarStyle: { display: "none" },
@@ -95,8 +107,8 @@ export function AppRoutes() {
       />
 
       <Screen
-        name="myAnnouncement"
-        component={MyAnnouncement}
+        name="previewProduct"
+        component={PreviewProduct}
         options={{
           tabBarButton: () => null,
           tabBarStyle: { display: "none" },

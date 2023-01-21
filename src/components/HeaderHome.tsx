@@ -7,13 +7,11 @@ import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "@hooks/useAuth";
 import { AppNavigatorProps } from "@routes/app.routes";
 
-import userPhotoDefaultPNG from "@assets/userPhotoDefault.png";
 import { api } from "@services/api";
 
 export function HeaderHome() {
   const { colors } = useTheme();
   const navigate = useNavigation<AppNavigatorProps>();
-
   const { user } = useAuth();
   return (
     <HStack flex={1} minH={12} maxH={12}>
@@ -23,11 +21,7 @@ export function HeaderHome() {
         mt={1}
         p={0}
         alt="foto de perfil do usuário!"
-        source={
-          user.avatar
-            ? { uri: `${api.defaults.baseURL}/images/${user.avatar}` }
-            : userPhotoDefaultPNG
-        }
+        urlImage={user.avatar}
       />
       <VStack flex={1} ml={2}>
         <Text fontSize={"md"} color={"gray.100"} fontFamily={"body"}>
@@ -39,7 +33,7 @@ export function HeaderHome() {
       </VStack>
       <HStack flex={1}>
         <Button
-          onPress={() => navigate.navigate("newAnnouncement")}
+          onPress={() => navigate.navigate("newProduct", { isEdit: false })}
           colorScheme={"black"}
           title="Criar anúncio"
           ml={2}
