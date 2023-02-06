@@ -71,11 +71,35 @@ export function Home() {
       setIsLoading(false);
     }
   }
+
+  async function handleResetFilter() {
+    try {
+      setIsLoading(true);
+      setOpenModal(false);
+      handleFilterIsNew(!filterIsNew);
+      handleFilterIsUsed(!filterIsUsed);
+      setFilter({});
+      const { data } = await api.get("/products", { params: filter });
+      setProductsData(data);
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+      const title = isAppError
+        ? error.message
+        : "Não foi possível carregar os produtos.";
+      toast.show({
+        title,
+        placement: "top",
+        bgColor: "red.500",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   async function fetchFilterProducts() {
     try {
       setIsLoading(true);
       setOpenModal(false);
-      console.log({ params: filter });
       const { data } = await api.get("/products", { params: filter });
       setProductsData(data);
     } catch (error) {
@@ -343,6 +367,7 @@ export function Home() {
               colorScheme={"gray"}
               flex={1}
               mr={3}
+              onPress={handleResetFilter}
             />
             <Button
               title="Aplicar filtros"
@@ -356,5 +381,3 @@ export function Home() {
     </>
   );
 }
-
-teste;

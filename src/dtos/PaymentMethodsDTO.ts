@@ -1,3 +1,4 @@
 export type PaymentMethodsDTO = {
-  method: "boleto" | "pix" | "cash" | "card" | "deposit";
+  key: "boleto" | "pix" | "cash" | "card" | "deposit";
+  name: string;
 };

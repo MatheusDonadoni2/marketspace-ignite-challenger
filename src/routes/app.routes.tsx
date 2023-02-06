@@ -9,6 +9,7 @@ import { House, Tag, SignOut } from "phosphor-react-native";
 import { useAuth } from "@hooks/useAuth";
 
 import { Home } from "@screens/Home";
+import { SignOut as SignOutScreen } from "@screens/SignOut";
 import { Product } from "@screens/Product";
 import { MyProducts } from "@screens/MyProducts";
 import { NewProduct } from "@screens/NewProduct";
@@ -78,7 +79,7 @@ export function AppRoutes() {
 
       <Screen
         name="logout"
-        component={"" as any}
+        component={SignOut}
         options={{
           tabBarIcon: ({ color }) => (
             <Pressable onPress={signOut}>

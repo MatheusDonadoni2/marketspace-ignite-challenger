@@ -21,6 +21,7 @@ import { Avatar } from "@components/Avatar";
 import { Button } from "@components/Button";
 
 import { AuthNavigationRoutesProps } from "@routes/auth.routes";
+import { useAuth } from "@hooks/useAuth";
 
 type FormDataProps = {
   name: string;
@@ -55,8 +56,9 @@ export function SignUp() {
     {} as UserAvatarProps
   );
   const [isLoading, setIsLoading] = useState(false);
-  const navigation = useNavigation<AuthNavigationRoutesProps>();
   const toast = useToast();
+  const { signIn } = useAuth();
+  const navigation = useNavigation<AuthNavigationRoutesProps>();
 
   const {
     control,
@@ -93,6 +95,8 @@ export function SignUp() {
         placement: "top",
         bgColor: "green.500",
       });
+
+      await signIn(email, password);
     } catch (error) {
       const isAppErro = error instanceof AppError;
       const title = isAppErro

@@ -214,7 +214,7 @@ export function PreviewProduct() {
           <FlatList
             data={productData.payment_methods}
             keyExtractor={(item) => item.key}
-            renderItem={({ item }) => <PaymentMethodText method={item.key} />}
+            renderItem={({ item }) => <PaymentMethodText data={item} />}
           />
         </VStack>
       </ScrollView>

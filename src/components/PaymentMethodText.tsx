@@ -9,46 +9,51 @@ import {
 } from "phosphor-react-native";
 
 import { PaymentMethodsDTO } from "@dtos/PaymentMethodsDTO";
-export function PaymentMethodText(method: PaymentMethodsDTO) {
+
+type PaymentMethodTextProps = {
+  data: PaymentMethodsDTO;
+};
+
+export function PaymentMethodText({ data }: PaymentMethodTextProps) {
   return (
     <HStack>
-      {method === "boleto" && (
+      {data.key === "boleto" && (
         <>
           <Barcode />
           <Text color={"gray.200"} ml={3}>
-            Boleto
+            {data.name}
           </Text>
         </>
       )}
-      {method === "pix" && (
+      {data.key === "pix" && (
         <>
           <QrCode />
           <Text color={"gray.200"} ml={3}>
-            Pix
+            {data.name}
           </Text>
         </>
       )}
-      {method === "cash" && (
+      {data.key === "cash" && (
         <>
           <Money />
           <Text color={"gray.200"} ml={3}>
-            Dinheiro
+            {data.name}
           </Text>
         </>
       )}
-      {method === "card" && (
+      {data.key === "card" && (
         <>
           <CreditCard />
           <Text color={"gray.200"} ml={3}>
-            Cartão de Crédito
+            {data.name}
           </Text>
         </>
       )}
-      {method === "deposit" && (
+      {data.key === "deposit" && (
         <>
-          <Bank size={5} />
+          <Bank />
           <Text color={"gray.200"} ml={3}>
-            Deposito Bancário
+            {data.name}
           </Text>
         </>
       )}

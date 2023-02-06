@@ -74,13 +74,10 @@ export function MyProducts() {
       }
 
       SetStateProduct(value);
-      console.log(value, x);
 
       const { data } = await api.get("/users/products/", {
         params: { is_new: false },
       });
-
-      console.log(data);
 
       setProductsData(data);
     } catch (error) {

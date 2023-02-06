@@ -1,10 +1,5 @@
 import { PaymentMethodsDTO } from "./PaymentMethodsDTO";
 
-type PaymentMethodsDTO = {
-  key: PaymentMethodsDTO;
-  name: string;
-};
-
 type ProductsImageDTO = {
   id: string;
   path: string;

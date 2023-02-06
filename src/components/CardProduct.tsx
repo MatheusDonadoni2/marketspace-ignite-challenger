@@ -69,7 +69,7 @@ export function CardProduct({ data, ...rest }: Props) {
             </Text>
           </Box>
         </HStack>
-        {!data.is_active && (
+        {!data.is_active && data.is_active !== undefined && (
           <Center
             w={"full"}
             h={"full"}
