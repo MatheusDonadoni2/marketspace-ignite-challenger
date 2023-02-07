@@ -87,7 +87,11 @@ export function NewProduct() {
   const { isEdit, productId } = route.params as RouteProps;
 
   const defaultValues = {
-    name: "productData.name",
+    name: productData.name,
+    description: productData.description,
+    isNew: productData.is_new ? "new" : "used",
+    price: productData.price,
+    acceptTrade: productData.accept_trade,
   };
 
   const {
@@ -263,7 +267,6 @@ export function NewProduct() {
     try {
       setIsLoading(true);
       const { data } = await api.get(`products/${productId}`);
-      setProductData({} as ProductDTO);
       setProductData(data);
     } catch (error) {
       const isAppErro = error instanceof AppError;
